@@ -220,7 +220,7 @@ if (process.env.RUN_LIVE === "1" && process.env.ANTHROPIC_API_KEY) {
     const systemPrompt = fs.readFileSync(path.join(__dirname, "..", "prompts", "01-independent.txt"), "utf8");
     const vignette = `63-year-old woman, fatigue, pruritus after hot showers, plethoric, mild splenomegaly. Hb 178, Hct 0.54, low EPO, urate elevated. SaO2 98%.`;
     const resp = await client.messages.create({
-      model: "claude-opus-4-5",
+      model: "claude-opus-4-7",
       max_tokens: 2048,
       system: systemPrompt,
       messages: [{ role: "user", content: `<case>\n${vignette}\n</case>` }],
