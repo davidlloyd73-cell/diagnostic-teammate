@@ -381,6 +381,54 @@
         color: var(--mint-deep);
         background: transparent;
       }
+      .paste-hint {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        color: var(--ink-2);
+        opacity: 0.55;
+        margin-top: 6px;
+      }
+      .img-previews {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .img-preview {
+        position: relative;
+      }
+      .img-preview img {
+        height: 80px;
+        width: auto;
+        max-width: 200px;
+        object-fit: contain;
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        display: block;
+        background: #f8f8f8;
+      }
+      .img-remove {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: var(--rust);
+        color: #fff;
+        border: none;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 15px;
+        line-height: 1;
+        cursor: pointer;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .img-remove:hover:not(:disabled) {
+        background: #8b3a1e;
+      }
       @media (max-width: 720px) {
         .stages {
           grid-template-columns: 1fr;
@@ -425,6 +473,8 @@
             <div class="stage-hint">Paste a de-identified vignette — history, exam, investigations</div>
             <button class="example-btn" id="loadExample" type="button">Load example case</button>
             <textarea id="vignette" rows="10" placeholder="e.g. 64-year-old man presents with..."></textarea>
+            <div class="paste-hint">Paste screenshots here (blood results, letters, clinic notes) — or type the vignette above</div>
+            <div class="img-previews" id="imagePreviews" style="display:none"></div>
             <button id="startBtn" type="button">Start independent analysis</button>
             <div class="error" id="err1" style="display: none"></div>
           </div>
@@ -493,13 +543,57 @@ Bloods: Hb 178 g/L, Hct 0.54, WCC 12.1 (neutrophils 8.2), platelets 540, EPO low
 
 Chest X-ray: clear. SaO₂ 98% on air.`;
 
-      let state = { vignette: "", clinician: null, ai: null, synthesis: null };
+      let state = { vignette: "", clinician: null, ai: null, synthesis: null, images: [] };
 
       const $ = (id) => document.getElementById(id);
 
       $("loadExample").onclick = () => {
         $("vignette").value = EXAMPLE_CASE;
       };
+
+      // Paste images anywhere on the page while stage 1 is active
+      document.addEventListener("paste", (e) => {
+        if ($("stage1").classList.contains("done")) return;
+        const items = [...(e.clipboardData?.items || [])];
+        const imageItems = items.filter((item) => item.type.startsWith("image/"));
+        if (imageItems.length === 0) return;
+        e.preventDefault();
+        imageItems.forEach((item) => {
+          const file = item.getAsFile();
+          const reader = new FileReader();
+          reader.onload = (ev) => addImage(ev.target.result);
+          reader.readAsDataURL(file);
+        });
+      });
+
+      function addImage(dataUrl) {
+        state.images.push(dataUrl);
+        renderImagePreviews();
+      }
+
+      function removeImage(idx) {
+        state.images.splice(idx, 1);
+        renderImagePreviews();
+      }
+
+      function renderImagePreviews() {
+        const container = $("imagePreviews");
+        if (!state.images.length) {
+          container.style.display = "none";
+          container.innerHTML = "";
+          return;
+        }
+        container.style.display = "flex";
+        container.innerHTML = state.images
+          .map(
+            (src, i) =>
+              `<div class="img-preview">
+                <img src="${src}" alt="Pasted image ${i + 1}">
+                <button class="img-remove" onclick="removeImage(${i})" type="button" title="Remove">×</button>
+              </div>`
+          )
+          .join("");
+      }
 
       function showErr(id, msg) {
         const el = $(id);
@@ -538,8 +632,8 @@ Chest X-ray: clear. SaO₂ 98% on air.`;
       $("startBtn").onclick = async () => {
         clearErr("err1");
         const vignette = $("vignette").value.trim();
-        if (vignette.length < 20) {
-          showErr("err1", "Please paste a case of at least 20 characters.");
+        if (vignette.length < 20 && state.images.length === 0) {
+          showErr("err1", "Please enter a case description (min 20 characters) or paste a screenshot.");
           return;
         }
         state.vignette = vignette;
@@ -549,7 +643,10 @@ Chest X-ray: clear. SaO₂ 98% on air.`;
         $("stage2").scrollIntoView({ behavior: "smooth", block: "start" });
 
         try {
-          const data = await postJson("/.netlify/functions/independent", { vignette });
+          const data = await postJson("/.netlify/functions/independent", {
+            vignette,
+            images: state.images.length ? state.images : undefined,
+          });
           state.ai = data.analysis;
           resetBtn($("startBtn"), "AI analysis ready ✓");
           markDone("stage1");

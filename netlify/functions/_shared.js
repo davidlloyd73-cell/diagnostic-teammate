@@ -35,12 +35,22 @@ function extractJson(text) {
   }
 }
 
-async function callClaude({ system, userContent, maxTokens = 2048 }) {
+async function callClaude({ system, userContent, maxTokens = 2048, images = [] }) {
+  let content;
+  if (images.length > 0) {
+    content = images.map(({ mediaType, data }) => ({
+      type: "image",
+      source: { type: "base64", media_type: mediaType, data },
+    }));
+    content.push({ type: "text", text: userContent });
+  } else {
+    content = userContent;
+  }
   const response = await client.messages.create({
     model: MODEL,
     max_tokens: maxTokens,
     system,
-    messages: [{ role: "user", content: userContent }],
+    messages: [{ role: "user", content }],
   });
   const text = response.content
     .filter((b) => b.type === "text")
