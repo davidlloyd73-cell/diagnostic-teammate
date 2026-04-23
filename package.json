@@ -1,0 +1,26 @@
+{
+  "name": "diagnostic-teammate",
+  "version": "0.1.0",
+  "description": "Independent clinician-AI diagnostic collaboration, built on a two-call architecture to avoid the anchoring problem in Everett et al. 2026.",
+  "main": "public/index.html",
+  "scripts": {
+    "dev": "netlify dev",
+    "test": "node tests/run.js",
+    "test:live": "RUN_LIVE=1 node tests/run.js"
+  },
+  "keywords": [
+    "clinical-decision-support",
+    "anthropic",
+    "claude",
+    "diagnosis",
+    "ai-collaboration"
+  ],
+  "author": "David Lloyd",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.38.0"
+  }
+}

@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Diagnostic Teammate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --ink: #0b1f35;
+        --ink-2: #142f4d;
+        --paper: #f3efe6;
+        --paper-2: #ebe4d4;
+        --mint: #7fc9a8;
+        --mint-deep: #2d7a5a;
+        --rust: #b8532c;
+        --rule: rgba(11, 31, 53, 0.14);
+        --shadow: 0 1px 0 rgba(11, 31, 53, 0.08);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Inter Tight", system-ui, sans-serif;
+        background: var(--paper);
+        color: var(--ink);
+        font-size: 15px;
+        line-height: 1.5;
+        min-height: 100vh;
+        background-image:
+          radial-gradient(circle at 8% 12%, rgba(127, 201, 168, 0.12), transparent 40%),
+          radial-gradient(circle at 92% 88%, rgba(184, 83, 44, 0.08), transparent 45%);
+      }
+      header {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 36px 32px 20px;
+        border-bottom: 1px solid var(--rule);
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+      .mast {
+        font-family: "Fraunces", serif;
+        font-weight: 600;
+        font-size: 30px;
+        letter-spacing: -0.02em;
+        line-height: 1;
+      }
+      .mast em {
+        font-style: italic;
+        font-weight: 400;
+        color: var(--mint-deep);
+      }
+      .tagline {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--ink-2);
+        opacity: 0.7;
+      }
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 32px;
+      }
+      .intro {
+        font-family: "Fraunces", serif;
+        font-size: 20px;
+        line-height: 1.45;
+        max-width: 680px;
+        margin-bottom: 40px;
+        color: var(--ink-2);
+      }
+      .intro strong {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .stages {
+        display: grid;
+        grid-template-columns: 64px 1fr;
+        gap: 0 24px;
+      }
+      .stage {
+        display: contents;
+      }
+      .stage-num {
+        font-family: "Fraunces", serif;
+        font-size: 42px;
+        font-style: italic;
+        color: var(--mint-deep);
+        line-height: 1;
+        padding-top: 2px;
+        text-align: right;
+      }
+      .stage-body {
+        padding-bottom: 44px;
+        border-left: 1px solid var(--rule);
+        padding-left: 28px;
+        margin-left: -14px;
+        position: relative;
+      }
+      .stage-body::before {
+        content: "";
+        position: absolute;
+        left: -5px;
+        top: 14px;
+        width: 9px;
+        height: 9px;
+        background: var(--paper);
+        border: 2px solid var(--mint-deep);
+        border-radius: 50%;
+      }
+      .stage.done .stage-body::before {
+        background: var(--mint-deep);
+      }
+      h2 {
+        font-family: "Fraunces", serif;
+        font-weight: 600;
+        font-size: 22px;
+        margin: 0 0 4px;
+        letter-spacing: -0.01em;
+      }
+      .stage-hint {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--ink-2);
+        opacity: 0.65;
+        margin-bottom: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+      textarea,
+      input[type="text"] {
+        width: 100%;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        line-height: 1.55;
+        background: #fff;
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        padding: 14px 16px;
+        color: var(--ink);
+        box-shadow: var(--shadow);
+        resize: vertical;
+      }
+      textarea:focus,
+      input:focus {
+        outline: 2px solid var(--mint);
+        outline-offset: 1px;
+        border-color: transparent;
+      }
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .row label {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--ink-2);
+      }
+      button {
+        font-family: "Inter Tight", sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        background: var(--ink);
+        color: var(--paper);
+        border: none;
+        padding: 11px 22px;
+        border-radius: 2px;
+        cursor: pointer;
+        margin-top: 14px;
+        letter-spacing: 0.01em;
+        transition: all 0.15s ease;
+      }
+      button:hover:not(:disabled) {
+        background: var(--mint-deep);
+      }
+      button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      button.secondary {
+        background: transparent;
+        color: var(--ink);
+        border: 1px solid var(--ink);
+      }
+      button.secondary:hover:not(:disabled) {
+        background: var(--ink);
+        color: var(--paper);
+      }
+      .spinner {
+        display: inline-block;
+        width: 11px;
+        height: 11px;
+        border: 2px solid rgba(243, 239, 230, 0.3);
+        border-top-color: var(--paper);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin-right: 8px;
+        vertical-align: -1px;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .result {
+        background: #fff;
+        border: 1px solid var(--rule);
+        padding: 22px 26px;
+        margin-top: 14px;
+        box-shadow: var(--shadow);
+        border-radius: 2px;
+      }
+      .result h3 {
+        font-family: "Fraunces", serif;
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 0 12px;
+        color: var(--mint-deep);
+        letter-spacing: -0.005em;
+      }
+      .result h3:not(:first-child) {
+        margin-top: 22px;
+      }
+      .dx-row {
+        display: grid;
+        grid-template-columns: 28px 1fr auto;
+        gap: 14px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--rule);
+        align-items: baseline;
+      }
+      .dx-row:last-child {
+        border-bottom: none;
+      }
+      .dx-rank {
+        font-family: "Fraunces", serif;
+        font-style: italic;
+        font-size: 18px;
+        color: var(--mint-deep);
+      }
+      .dx-name {
+        font-weight: 500;
+        font-size: 15px;
+      }
+      .dx-meta {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        color: var(--ink-2);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .dx-detail {
+        font-size: 13px;
+        color: var(--ink-2);
+        margin-top: 6px;
+        grid-column: 2 / -1;
+      }
+      .dx-detail strong {
+        color: var(--ink);
+        font-weight: 500;
+      }
+      .origin-tag {
+        display: inline-block;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 2px 8px;
+        border-radius: 10px;
+        margin-right: 8px;
+        vertical-align: 1px;
+      }
+      .origin-AI {
+        background: #f0e4d9;
+        color: var(--rust);
+      }
+      .origin-Clinician {
+        background: #dbeede;
+        color: var(--mint-deep);
+      }
+      .origin-Both {
+        background: var(--ink);
+        color: var(--paper);
+      }
+      .callout {
+        background: #fff5ec;
+        border-left: 3px solid var(--rust);
+        padding: 14px 18px;
+        margin-top: 14px;
+        font-size: 13.5px;
+      }
+      .callout strong {
+        display: block;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--rust);
+        margin-bottom: 6px;
+      }
+      .patient-panel {
+        background: linear-gradient(180deg, #fff 0%, #f7f3ea 100%);
+        border: 1px solid var(--mint);
+        padding: 24px 28px;
+        margin-top: 14px;
+      }
+      .patient-panel h3 {
+        color: var(--ink);
+      }
+      .error {
+        background: #fff5ec;
+        border-left: 3px solid var(--rust);
+        padding: 10px 14px;
+        margin-top: 10px;
+        font-size: 13px;
+        color: var(--rust);
+      }
+      ul.tight {
+        margin: 8px 0;
+        padding-left: 20px;
+      }
+      ul.tight li {
+        margin: 4px 0;
+        font-size: 13.5px;
+      }
+      footer {
+        max-width: 1100px;
+        margin: 40px auto 60px;
+        padding: 20px 32px;
+        border-top: 1px solid var(--rule);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--ink-2);
+        opacity: 0.7;
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      footer a {
+        color: inherit;
+      }
+      .example-btn {
+        background: transparent;
+        border: 1px dashed var(--rule);
+        color: var(--ink-2);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 6px 12px;
+        margin: 0 0 10px;
+        cursor: pointer;
+      }
+      .example-btn:hover {
+        border-color: var(--mint-deep);
+        color: var(--mint-deep);
+        background: transparent;
+      }
+      @media (max-width: 720px) {
+        .stages {
+          grid-template-columns: 1fr;
+          gap: 0;
+        }
+        .stage-num {
+          text-align: left;
+        }
+        .stage-body {
+          border-left: none;
+          padding-left: 0;
+          margin-left: 0;
+        }
+        .stage-body::before {
+          display: none;
+        }
+        .row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="mast">Diagnostic <em>Teammate</em></div>
+      <div class="tagline">Two-call independent architecture · Ref: Everett et al. 2026</div>
+    </header>
+
+    <main>
+      <p class="intro">
+        A reference implementation of <strong>genuinely independent clinician–AI diagnostic collaboration</strong>.
+        The AI forms its differential before seeing yours. You form yours before seeing the AI's. Then we synthesise,
+        with explicit attribution of who suggested what.
+      </p>
+
+      <div class="stages">
+        <!-- STAGE 1 -->
+        <div class="stage" id="stage1">
+          <div class="stage-num">1</div>
+          <div class="stage-body">
+            <h2>The case</h2>
+            <div class="stage-hint">Paste a de-identified vignette — history, exam, investigations</div>
+            <button class="example-btn" id="loadExample" type="button">Load example case</button>
+            <textarea id="vignette" rows="10" placeholder="e.g. 64-year-old man presents with..."></textarea>
+            <button id="startBtn" type="button">Start independent analysis</button>
+            <div class="error" id="err1" style="display: none"></div>
+          </div>
+        </div>
+
+        <!-- STAGE 2 -->
+        <div class="stage" id="stage2" style="display: none">
+          <div class="stage-num">2</div>
+          <div class="stage-body">
+            <h2>Your analysis</h2>
+            <div class="stage-hint">
+              While the AI works independently in parallel, enter your own differential — it cannot see your answers
+            </div>
+            <label style="display: block; margin-top: 8px">
+              <span class="dx-meta">Top 3 differential diagnoses (one per line)</span>
+              <textarea id="clinDx" rows="3" placeholder="Polycythaemia vera&#10;Secondary erythrocytosis&#10;Chronic hypoxia"></textarea>
+            </label>
+            <label style="display: block; margin-top: 8px">
+              <span class="dx-meta">Most likely diagnosis</span>
+              <input type="text" id="clinMost" />
+            </label>
+            <label style="display: block; margin-top: 8px">
+              <span class="dx-meta">Top 3 next steps (one per line)</span>
+              <textarea id="clinNext" rows="3" placeholder="JAK2 V617F testing&#10;Full blood count with film&#10;Serum erythropoietin"></textarea>
+            </label>
+            <button id="synthBtn" type="button">Synthesise with AI's independent analysis</button>
+            <div class="error" id="err2" style="display: none"></div>
+          </div>
+        </div>
+
+        <!-- STAGE 3 -->
+        <div class="stage" id="stage3" style="display: none">
+          <div class="stage-num">3</div>
+          <div class="stage-body">
+            <h2>Synthesis</h2>
+            <div class="stage-hint">Both analyses, attributed and critiqued</div>
+            <div id="synthResult"></div>
+            <button id="patientBtn" type="button" class="secondary">Generate patient-facing summary</button>
+            <div class="error" id="err3" style="display: none"></div>
+          </div>
+        </div>
+
+        <!-- STAGE 4 -->
+        <div class="stage" id="stage4" style="display: none">
+          <div class="stage-num">4</div>
+          <div class="stage-body">
+            <h2>For the patient</h2>
+            <div class="stage-hint">The same reasoning, in plain English — a visible third voice</div>
+            <div id="patientResult"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <span>MIT licensed · Prompts CC-BY</span>
+      <span>Built for triadic care</span>
+    </footer>
+
+    <script>
+      const EXAMPLE_CASE = `63-year-old woman presents with 3-month history of progressive fatigue, generalised pruritus (worse after hot showers), and intermittent headaches. No weight loss. Occasional night sweats. Non-smoker. No relevant family history.
+
+Examination: BP 148/92, plethoric complexion, mild splenomegaly 2cm below costal margin. Otherwise unremarkable.
+
+Bloods: Hb 178 g/L, Hct 0.54, WCC 12.1 (neutrophils 8.2), platelets 540, EPO low, ferritin 22, urate elevated at 480 µmol/L. U&E normal. LFTs normal.
+
+Chest X-ray: clear. SaO₂ 98% on air.`;
+
+      let state = { vignette: "", clinician: null, ai: null, synthesis: null };
+
+      const $ = (id) => document.getElementById(id);
+
+      $("loadExample").onclick = () => {
+        $("vignette").value = EXAMPLE_CASE;
+      };
+
+      function showErr(id, msg) {
+        const el = $(id);
+        el.textContent = msg;
+        el.style.display = "block";
+      }
+      function clearErr(id) {
+        $(id).style.display = "none";
+      }
+
+      function markDone(stageId) {
+        $(stageId).classList.add("done");
+      }
+
+      async function postJson(url, body) {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Request failed");
+        return data;
+      }
+
+      function spinnerBtn(btn, label) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner"></span>${label}`;
+      }
+      function resetBtn(btn, label) {
+        btn.disabled = false;
+        btn.innerHTML = label;
+      }
+
+      // STAGE 1: fire independent AI analysis, reveal stage 2 immediately
+      $("startBtn").onclick = async () => {
+        clearErr("err1");
+        const vignette = $("vignette").value.trim();
+        if (vignette.length < 20) {
+          showErr("err1", "Please paste a case of at least 20 characters.");
+          return;
+        }
+        state.vignette = vignette;
+
+        spinnerBtn($("startBtn"), "AI working independently…");
+        $("stage2").style.display = "contents";
+        $("stage2").scrollIntoView({ behavior: "smooth", block: "start" });
+
+        try {
+          const data = await postJson("/.netlify/functions/independent", { vignette });
+          state.ai = data.analysis;
+          resetBtn($("startBtn"), "AI analysis ready ✓");
+          markDone("stage1");
+        } catch (e) {
+          showErr("err1", e.message);
+          resetBtn($("startBtn"), "Start independent analysis");
+        }
+      };
+
+      // STAGE 2: run synthesis
+      $("synthBtn").onclick = async () => {
+        clearErr("err2");
+        if (!state.ai) {
+          showErr("err2", "Waiting for AI independent analysis to complete.");
+          return;
+        }
+        const dx = $("clinDx").value.trim().split("\n").map((s) => s.trim()).filter(Boolean);
+        const next = $("clinNext").value.trim().split("\n").map((s) => s.trim()).filter(Boolean);
+        const most = $("clinMost").value.trim();
+        if (dx.length < 1 || next.length < 1 || !most) {
+          showErr("err2", "Please enter at least one differential, a most-likely diagnosis, and one next step.");
+          return;
+        }
+        state.clinician = {
+          differential: dx.map((d, i) => ({ rank: i + 1, diagnosis: d })),
+          most_likely_diagnosis: most,
+          next_steps: next.map((s, i) => ({ rank: i + 1, step: s })),
+        };
+
+        spinnerBtn($("synthBtn"), "Synthesising…");
+        try {
+          const data = await postJson("/.netlify/functions/synthesis", {
+            vignette: state.vignette,
+            clinicianAnalysis: state.clinician,
+            aiAnalysis: state.ai,
+          });
+          state.synthesis = data.synthesis;
+          renderSynthesis(data.synthesis);
+          $("stage3").style.display = "contents";
+          $("stage3").scrollIntoView({ behavior: "smooth", block: "start" });
+          markDone("stage2");
+          resetBtn($("synthBtn"), "Synthesis complete ✓");
+        } catch (e) {
+          showErr("err2", e.message);
+          resetBtn($("synthBtn"), "Synthesise with AI's independent analysis");
+        }
+      };
+
+      // STAGE 4: patient summary
+      $("patientBtn").onclick = async () => {
+        clearErr("err3");
+        if (!state.synthesis) return;
+        spinnerBtn($("patientBtn"), "Writing for the patient…");
+        try {
+          const data = await postJson("/.netlify/functions/patient", { synthesis: state.synthesis });
+          renderPatient(data.patient);
+          $("stage4").style.display = "contents";
+          $("stage4").scrollIntoView({ behavior: "smooth", block: "start" });
+          markDone("stage3");
+          resetBtn($("patientBtn"), "Patient summary ready ✓");
+        } catch (e) {
+          showErr("err3", e.message);
+          resetBtn($("patientBtn"), "Generate patient-facing summary");
+        }
+      };
+
+      function originTag(origin) {
+        return `<span class="origin-tag origin-${origin}">${origin}</span>`;
+      }
+
+      function renderSynthesis(s) {
+        let html = '<div class="result">';
+        html += "<h3>Diagnoses</h3>";
+        s.diagnoses.forEach((d) => {
+          html += `<div class="dx-row">
+            <span></span>
+            <div>
+              <div>${originTag(d.origin)}<span class="dx-name">${escapeHtml(d.diagnosis)}</span></div>
+              <div class="dx-detail">${escapeHtml(d.critique)}</div>
+            </div>
+            <span class="dx-meta">${escapeHtml(d.agreement_strength || "")}</span>
+          </div>`;
+        });
+        html += "<h3>Next steps</h3>";
+        s.next_steps.forEach((n) => {
+          html += `<div class="dx-row">
+            <span></span>
+            <div>
+              <div>${originTag(n.origin)}<span class="dx-name">${escapeHtml(n.step)}</span></div>
+              <div class="dx-detail">${escapeHtml(n.critique)}</div>
+            </div>
+            <span></span>
+          </div>`;
+        });
+        if (s.key_divergences && s.key_divergences.length) {
+          html += `<div class="callout"><strong>Key divergences</strong>`;
+          html += `<ul class="tight">${s.key_divergences.map((d) => `<li>${escapeHtml(d)}</li>`).join("")}</ul>`;
+          html += `</div>`;
+        }
+        if (s.suggested_discussion_points && s.suggested_discussion_points.length) {
+          html += `<div class="callout" style="border-left-color: var(--mint-deep); background: #eef7f1;">
+            <strong style="color: var(--mint-deep);">Worth thinking through</strong>`;
+          html += `<ul class="tight">${s.suggested_discussion_points.map((d) => `<li>${escapeHtml(d)}</li>`).join("")}</ul></div>`;
+        }
+        html += "</div>";
+        $("synthResult").innerHTML = html;
+      }
+
+      function renderPatient(p) {
+        let html = '<div class="patient-panel">';
+        html += `<h3>What's going on</h3><p>${escapeHtml(p.summary)}</p>`;
+        html += `<h3>What the doctor is considering</h3>`;
+        p.being_considered.forEach((c) => {
+          html += `<div class="dx-row">
+            <span></span>
+            <div>
+              <div><span class="dx-name">${escapeHtml(c.condition)}</span></div>
+              <div class="dx-detail">${escapeHtml(c.what_it_means)}</div>
+            </div>
+            <span class="dx-meta">${escapeHtml(c.how_likely)}</span>
+          </div>`;
+        });
+        html += `<h3>What happens next</h3><ul class="tight">`;
+        p.what_happens_next.forEach((a) => {
+          html += `<li><strong>${escapeHtml(a.action)}</strong> — ${escapeHtml(a.why)}</li>`;
+        });
+        html += `</ul>`;
+        if (p.questions_you_might_ask && p.questions_you_might_ask.length) {
+          html += `<h3>Questions you might ask</h3><ul class="tight">`;
+          html += p.questions_you_might_ask.map((q) => `<li>${escapeHtml(q)}</li>`).join("");
+          html += `</ul>`;
+        }
+        html += "</div>";
+        $("patientResult").innerHTML = html;
+      }
+
+      function escapeHtml(s) {
+        if (s == null) return "";
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+    </script>
+  </body>
+</html>
