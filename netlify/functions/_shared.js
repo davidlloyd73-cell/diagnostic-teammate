@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const Anthropic = require("@anthropic-ai/sdk");
+const { jsonrepair } = require("jsonrepair");
 
 // Using Claude Opus 4.7 — Anthropic's most capable model as of April 2026.
 // For higher-volume or lower-latency use, swap to "claude-sonnet-4-6" or "claude-haiku-4-5-20251001".
@@ -24,7 +25,14 @@ function extractJson(text) {
   if (start === -1 || end === -1) {
     throw new Error("No JSON object found in model response");
   }
-  return JSON.parse(cleaned.slice(start, end + 1));
+  const jsonStr = cleaned.slice(start, end + 1);
+  try {
+    return JSON.parse(jsonStr);
+  } catch (_) {
+    // Model occasionally produces minor syntax errors (e.g. missing comma in array).
+    // jsonrepair fixes the most common cases without altering the data.
+    return JSON.parse(jsonrepair(jsonStr));
+  }
 }
 
 async function callClaude({ system, userContent, maxTokens = 2048 }) {

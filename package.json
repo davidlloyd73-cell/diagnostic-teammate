@@ -18,7 +18,8 @@
   "author": "David Lloyd",
   "license": "MIT",
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.32.1"
+    "@anthropic-ai/sdk": "^0.32.1",
+    "jsonrepair": "^3.14.0"
   },
   "devDependencies": {
     "netlify-cli": "^17.38.0"
